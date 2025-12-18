@@ -147,11 +147,11 @@ func main() {
 			"arguments": map[string]interface{}{
 				"subnet4": []map[string]interface{}{
 					{
-						"id":                  startSubnetID,
-						"subnet":              subnet,
-						"max-valid-lifetime":  0,
-						"min-valid-lifetime":  0,
-						"valid-lifetime":      0,
+						"id":                 startSubnetID,
+						"subnet":             subnet,
+						"max-valid-lifetime": 0,
+						"min-valid-lifetime": 0,
+						"valid-lifetime":     0,
 						"pools": []map[string]interface{}{
 							{
 								"option-data": []interface{}{},
