@@ -1,3 +1,19 @@
+/*
+########################################################################################################
+####                                                                                                ####
+####                            [DAS] Device Activation System                                      ####
+####                                                                                                ####
+#### KEA Server automation Demo                                                                     ####
+#### Author : Jordan Rubin jordan.rubin@centurylink.com                                             ####
+####                                                                                                ####
+#### This is a demo to configure KEA DHCP server using Go.                                          ####
+#### it builds out the subnets and reservations based on the provided workflow                      ####
+#### This is just a POC and not fir production use.                                                 ####
+########################################################################################################
+####
+#### 12/18/2025 - Initial Release
+*/
+
 package main
 
 import (
@@ -16,7 +32,7 @@ import (
 const (
 	keaAPIURL  = "http://100.87.19.138:8000"
 	keaAPIUser = "kea-api"
-	keaAPIPass = "keaapipa55w0rd"
+	keaAPIPass = "keaapipassword"
 	debug      = true
 )
 

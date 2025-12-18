@@ -49,7 +49,7 @@ Update these constants in `main.go` to match your Kea API server:
 const (
     keaAPIURL  = "http://100.87.19.138:8000"
     keaAPIUser = "kea-api"
-    keaAPIPass = "keaapipa55w0rd"
+    keaAPIPass = "keaapipassword"
     debug      = true
 )
 ```

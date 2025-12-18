@@ -3,16 +3,15 @@
 ####                                                                                                ####
 ####                            [DAS] Device Activation System                                      ####
 ####                                                                                                ####
-#### Device Activation from IBN Testing                                                             ####
+#### KEA Server automation Demo                                                                     ####
 #### Author : Jordan Rubin jordan.rubin@centurylink.com                                             ####
-####                                                                                                #### 
-#### Recieves workflow for DHCPackhandler in JSON Restfully.  After parsing the content             ####
-#### it creates the activation object using activation module to run the functions of activation.   ####
-#### activation.pm will either return success, or failure with XML formatted content to return to   ####
-#### WORKFLOW with the ERROR NAME, DSP CODE, and the actual text of the error.                      ####    
+####                                                                                                ####
+#### This is a demo to configure KEA DHCP server using Go.                                          ####
+#### it builds out the subnets and reservations based on the provided workflow                      ####
+#### This is just a POC and not fir production use.                                                 ####
 ########################################################################################################
 ####
-#### 02/26/2025 - PRODUCTION ROLLOUT WORK
+#### 5/1/2025 - Initial Release
 
 # Never modify this......ever
 use strict;
@@ -273,7 +272,7 @@ sub sendtokea{
         $req->header( 'Content-Type' => 'application/json' );
         $req->header( 'Content-Length' => length( $jsonPayload ) );
         $req->content( $jsonPayload );
-        $req->authorization_basic("kea-api","keaapipa55w0rd");
+        $req->authorization_basic("kea-api","keaapipassword");
         my $res = $ua->request($req);
         my $json_response = $res->decoded_content;
         my $decoded_response = decode_json($json_response);
