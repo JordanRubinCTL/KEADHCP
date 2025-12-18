@@ -1,0 +1,50 @@
+{
+    "1": {
+        "port": "gi1/1",
+        "subnet": "{{SUBNET_0}}",
+        "type": "mgmt",
+        "mask": 30
+    },
+    "2": {
+        "port": "gi1/2",
+        "subnet": "{{SUBNET_1}}",
+        "type": "mgmt",
+        "mask": 30
+    },
+    "3": {
+        "port": "TenGigE0/0/0/18",
+        "subnet": "{{SUBNET_2}}",
+        "type": "user",
+        "mask": 29
+    },
+    "4": {
+        "port": "gi1/4",
+        "subnet": "{{SUBNET_2}}",
+        "type": "user",
+        "mask": 24
+    },
+    "5": {
+        "port": "gi1/5",
+        "subnet": "{{SUBNET_2}}",
+        "type": "user",
+        "mask": 24
+    },
+    "6": {
+        "port": "gi1/6",
+        "subnet": "{{SUBNET_2}}",
+        "type": "user",
+        "mask": 24
+    },
+    "7": {
+        "port": "gi1/7",
+        "subnet": "{{SUBNET_2}}",
+        "type": "user",
+        "mask": 24
+    },
+    "8": {
+        "port": "gi1/8",
+        "subnet": "{{SUBNET_2}}",
+        "type": "user",
+        "mask": 24
+    }
+}
