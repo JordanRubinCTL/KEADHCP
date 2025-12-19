@@ -296,7 +296,7 @@ sub send_to_kea {
     
     # Determine if this is a read-only request
     my $command = $payload_hash->{command} || '';
-    my $is_readonly = ($command =~ /^(list-|subnet4-list|reservation-get|config-get|status-get|version-get)/);
+    my $is_readonly = ($command =~ /^(list-|subnet4-list|subnet4-get|reservation-get|config-get|status-get|version-get)/);
     
     # TEST MODE: Only send read-only requests
     if ($mode eq 'test' && !$is_readonly) {
