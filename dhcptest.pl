@@ -359,7 +359,7 @@ sub kea_check_subnet_exists {
         command => 'subnet4-get',
         service => ['dhcp4'],
         arguments => {
-            id => $subnet_id
+            id => int($subnet_id)  # Ensure it's an integer
         }
     };
     
