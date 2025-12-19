@@ -105,21 +105,12 @@ sub main {
     foreach my $subnet (@{$workflow->{subnet}}) {
         print "\nBUILD SUBNET [$subnet]--------------\n";
         
-        # Get existing subnets
-        my $existing_subnets = kea_list_subnets();
-        
-        # Calculate subnet ID from IP address
-        my $subnet_id = calculate_subnet_id_from_ip($subnet, $existing_subnets);
+        # Calculate subnet ID from IP address and check if it exists
+        my $subnet_id = calculate_subnet_id_from_ip($subnet);
         print "Calculated subnet ID is $subnet_id\n";
 
         # Parse subnet and calculate IP ranges
         my $ip_info = calculate_subnet_info($subnet);
-        
-        # Check for subnet overlap
-        if (check_subnet_overlap($existing_subnets, $subnet)) {
-            print "WARNING: subnet overlap detected for $subnet - skipping\n";
-            next;  # Skip instead of continuing with duplicate
-        }
 
         # Add subnet to Kea
         print "Building Subnet $subnet with ID $subnet_id\n";
@@ -251,7 +242,7 @@ sub calculate_subnet_info {
 
 # FIXED: Proper algorithm to find free subnet ID
 sub calculate_subnet_id_from_ip {
-    my ($subnet_cidr, $existing_subnets) = @_;
+    my ($subnet_cidr) = @_;
     
     # Extract just the IP portion (remove /mask)
     my ($ip) = split('/', $subnet_cidr);
@@ -268,12 +259,9 @@ sub calculate_subnet_id_from_ip {
         print "  Result: $subnet_id\n";
     }
     
-    # Check if this ID already exists
-    if ($existing_subnets && @{$existing_subnets}) {
-        my @existing_ids = map { $_->{id} } @{$existing_subnets};
-        if (grep { $_ == $subnet_id } @existing_ids) {
-            die "ERROR: Calculated subnet ID $subnet_id already exists in Kea! This subnet may already be configured.\n";
-        }
+    # Check if this specific subnet ID already exists in Kea
+    if (kea_check_subnet_exists($subnet_id)) {
+        die "ERROR: Calculated subnet ID $subnet_id already exists in Kea! This subnet may already be configured.\n";
     }
     
     return $subnet_id;
@@ -364,17 +352,32 @@ sub kea_list_commands {
     return $response->[0]->{arguments} || [];
 }
 
-sub kea_list_subnets {
+sub kea_check_subnet_exists {
+    my ($subnet_id) = @_;
+    
     my $payload = {
-        command => 'subnet4-list',
-        service => ['dhcp4']
+        command => 'subnet4-get',
+        service => ['dhcp4'],
+        arguments => {
+            id => $subnet_id
+        }
     };
     
-    # subnet4-list is read-only, so it will be sent even in test mode
-    my $response = send_to_kea($payload);
-    
-    # Handle case where no subnets exist
-    return $response->[0]->{arguments}->{subnets} || [];
+    # subnet4-get is read-only, so it will be sent even in test mode
+    eval {
+        my $response = send_to_kea($payload);
+        
+        # If result is 0, subnet exists
+        if ($response->[0]->{result} == 0) {
+            return 1;  # Subnet exists
+        }
+        else {
+            return 0;  # Subnet doesn't exist (result 3 = empty)
+        }
+    } or do {
+        # Error likely means subnet doesn't exist
+        return 0;
+    };
 }
 
 sub kea_add_subnet {
