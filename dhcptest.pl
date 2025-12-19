@@ -7,7 +7,7 @@
 #### Author : Jordan Rubin jordan.rubin@centurylink.com                                             ####
 ####                                                                                                ####
 #### This is a demo to configure KEA DHCP server using Perl.                                        ####
-#### it builds out the subnets and reservations based on the provided workflow                      ####
+#### it builds out the subnets and reservationsbudapestwalkedsd based on the provided workflow                      ####
 #### This is just a POC and not for production use.                                                 ####
 ########################################################################################################
 ####
@@ -108,9 +108,9 @@ sub main {
         # Get existing subnets
         my $existing_subnets = kea_list_subnets();
         
-        # Find first free subnet ID (FIXED ALGORITHM)
-        my $subnet_id = find_free_subnet_id($existing_subnets);
-        print "First free subnet id is $subnet_id\n";
+        # Calculate subnet ID from IP address
+        my $subnet_id = calculate_subnet_id_from_ip($subnet, $existing_subnets);
+        print "Calculated subnet ID is $subnet_id\n";
 
         # Parse subnet and calculate IP ranges
         my $ip_info = calculate_subnet_info($subnet);
@@ -250,31 +250,33 @@ sub calculate_subnet_info {
 }
 
 # FIXED: Proper algorithm to find free subnet ID
-sub find_free_subnet_id {
-    my ($subnet_list) = @_;
+sub calculate_subnet_id_from_ip {
+    my ($subnet_cidr, $existing_subnets) = @_;
     
-    return 1 unless @{$subnet_list};
+    # Extract just the IP portion (remove /mask)
+    my ($ip) = split('/', $subnet_cidr);
     
-    # Extract and sort all existing IDs
-    my @existing_ids = sort { $a <=> $b } 
-                       map { $_->{id} } 
-                       @{$subnet_list};
+    # Split into octets
+    my @octets = split(/\./, $ip);
     
-    # Find first gap or return max+1
-    my $next_id = 1;
-    foreach my $id (@existing_ids) {
-        print "Subnet ID $id in use\n" if $DEBUG;
-        
-        if ($id == $next_id) {
-            $next_id++;
-        }
-        else {
-            # Found a gap
-            last;
+    # Calculate unique ID using formula: (O1 * 16777216) + (O2 * 65536) + (O3 * 256) + O4
+    my $subnet_id = ($octets[0] * 16777216) + ($octets[1] * 65536) + ($octets[2] * 256) + $octets[3];
+    
+    if ($DEBUG) {
+        print "Calculating subnet ID for $ip:\n";
+        print "  Formula: ($octets[0] * 16777216) + ($octets[1] * 65536) + ($octets[2] * 256) + $octets[3]\n";
+        print "  Result: $subnet_id\n";
+    }
+    
+    # Check if this ID already exists
+    if ($existing_subnets && @{$existing_subnets}) {
+        my @existing_ids = map { $_->{id} } @{$existing_subnets};
+        if (grep { $_ == $subnet_id } @existing_ids) {
+            die "ERROR: Calculated subnet ID $subnet_id already exists in Kea! This subnet may already be configured.\n";
         }
     }
     
-    return $next_id;
+    return $subnet_id;
 }
 
 sub check_subnet_overlap {
