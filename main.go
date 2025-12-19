@@ -11,7 +11,7 @@
 #### This is just a POC and not fir production use.                                                 ####
 ########################################################################################################
 ####
-#### 12/18/2025 - Initial Release
+#### 5/1/2025 - Initial Release
 */
 
 package main
@@ -144,11 +144,10 @@ func main() {
 
 		// Calculate pool range
 		first, last := getIPRange(ipnet)
-		pool := fmt.Sprintf("%s-%s", first, last)
+		firstUsable := getNextIP(net.ParseIP(first))
+		pool := fmt.Sprintf("%s-%s", firstUsable.String(), last)
 		masklen, _ := ipnet.Mask.Size()
-		fmt.Printf("Full single pool for [%d] subnet as %s\n", masklen, pool)
-
-		// Check for subnet overlap
+		fmt.Printf("Full single pool for [%d] subnet as %s\n", masklen, pool) // Check for subnet overlap
 		if checkSubnetOverlap(resp, subnet) {
 			fmt.Printf("subnet overlap for %s\n", subnet)
 			// continue or exit based on requirements
@@ -165,13 +164,19 @@ func main() {
 					{
 						"id":                 startSubnetID,
 						"subnet":             subnet,
-						"max-valid-lifetime": 0,
-						"min-valid-lifetime": 0,
-						"valid-lifetime":     0,
+						"max-valid-lifetime": 300,
+						"min-valid-lifetime": 300,
+						"valid-lifetime":     300,
 						"pools": []map[string]interface{}{
 							{
 								"option-data": []interface{}{},
 								"pool":        pool,
+							},
+						},
+						"option-data": []map[string]interface{}{
+							{
+								"name": "routers",
+								"data": first,
 							},
 						},
 					},
@@ -189,6 +194,7 @@ func main() {
 		}
 
 		// Add host reservations for each matching port in template
+		// Start from network address (first IP before firstUsable)
 		currentIP := net.ParseIP(first)
 		for key := 1; key <= len(template); key++ {
 			keyStr := strconv.Itoa(key)

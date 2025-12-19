@@ -12,39 +12,15 @@
         "mask": 30
     },
     "3": {
-        "port": "TenGigE0/0/0/18",
+        "port": "18",
         "subnet": "{{SUBNET_2}}",
         "type": "user",
         "mask": 29
     },
     "4": {
-        "port": "gi1/4",
+        "port": "26",
         "subnet": "{{SUBNET_2}}",
         "type": "user",
-        "mask": 24
-    },
-    "5": {
-        "port": "gi1/5",
-        "subnet": "{{SUBNET_2}}",
-        "type": "user",
-        "mask": 24
-    },
-    "6": {
-        "port": "gi1/6",
-        "subnet": "{{SUBNET_2}}",
-        "type": "user",
-        "mask": 24
-    },
-    "7": {
-        "port": "gi1/7",
-        "subnet": "{{SUBNET_2}}",
-        "type": "user",
-        "mask": 24
-    },
-    "8": {
-        "port": "gi1/8",
-        "subnet": "{{SUBNET_2}}",
-        "type": "user",
-        "mask": 24
+        "mask": 29
     }
 }

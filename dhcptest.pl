@@ -58,42 +58,18 @@ my $tsgtemplate = qq^{
                 "mask"   : 30
         },
         "3" : {
-                "port"   : "TenGigE0/0/0/18",
+                "port"   : "18",
                 "subnet" : "$workflow->{subnet}->[2]",
                 "type"   : "user",
                 "mask"   : 29
         },
         "4" : {
-                "port"   : "gi1/4",   
+                "port"   : "26",   
                 "subnet" : "$workflow->{subnet}->[2]",
                 "type"   : "user",
-                "mask"   : 24
-        },
-        "5" : {
-                "port"   : "gi1/5",   
-                "subnet" : "$workflow->{subnet}->[2]",
-                "type"   : "user",
-                "mask"   : 24
-        },
-        "6" : {
-                "port"   : "gi1/6",   
-                "subnet" : "$workflow->{subnet}->[2]",
-                "type"   : "user",
-                "mask"   : 24
-        },
-        "7" : {
-                "port"   : "gi1/7",   
-                "subnet" : "$workflow->{subnet}->[2]",
-                "type"   : "user",
-                "mask"   : 24
-        },
-        "8" : {
-                "port"   : "gi1/8",   
-                "subnet" : "$workflow->{subnet}->[2]",
-                "type"   : "user",
-                "mask"   : 24
+                "mask"   : 29
         }
-    }^;
+}^;
 print "TSG STENCIL FOR BUILD IN JSON\n";
 $tsgtemplate  = decode_json($tsgtemplate);
 if ($debug) {print Dumper $tsgtemplate;}
@@ -151,9 +127,11 @@ foreach my $subnet (@{$workflow->{subnet}}) {
         my $last = $ipp->last;
         my $thisip = NetAddr::IP->new($first);
         my $delimiter = '/';
+        my $firstusable = $first+1;
         $first =~ s/\Q$delimiter\E.*//;
         $last =~ s/\Q$delimiter\E.*//;
-        my $pool = "$first".'-'."$last";
+        $firstusable =~ s/\Q$delimiter\E.*//;
+        my $pool = "$firstusable".'-'."$last";
         print "Full single pool for [$masklen] subnet as $pool\n";
 
         foreach my $thisSUBNET  (@{$subnetlist}){
@@ -172,14 +150,20 @@ foreach my $subnet (@{$workflow->{subnet}}) {
                 "subnet4": [ {
                         "id": $startSubnetid,
                         "subnet": "$subnet",
-                        "max-valid-lifetime": 0,
-                        "min-valid-lifetime": 0,
-                        "valid-lifetime": 0,
+                        "max-valid-lifetime": 300,
+                        "min-valid-lifetime": 300,
+                        "valid-lifetime": 300,
                         "pools" :[
                                 {
                                         "option-data" : [],
                                         "pool": "$pool"
                                 }
+                        ],
+                        "option-data": [
+                                {
+                                        "name": "routers",
+                                        "data": "$first"  
+                                }              
                         ]
                 } ]
         }
