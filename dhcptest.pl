@@ -349,6 +349,19 @@ sub send_to_kea {
     return $decoded;
 }
 
+sub kea_list_commands {
+    my $payload = {
+        command => 'list-commands',
+        service => ['dhcp4']
+    };
+    
+    # list-commands is read-only, so it will be sent even in test mode
+    my $response = send_to_kea($payload);
+    
+    # Return the array of available commands
+    return $response->[0]->{arguments} || [];
+}
+
 sub kea_list_subnets {
     my $payload = {
         command => 'subnet4-list',
