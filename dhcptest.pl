@@ -347,47 +347,6 @@ sub send_to_kea {
     }
     
     return $decoded;
-}   
-    # Properly encode as JSON
-    my $json_payload = encode_json($payload_hash);
-    
-    if ($DEBUG) {
-        print "API REQUEST:\n";
-        print JSON->new->pretty->encode($payload_hash);
-    }
-    
-    my $ua = LWP::UserAgent->new(timeout => 30);
-    my $req = POST $KEA_API_URL;
-    $req->header('Content-Type' => 'application/json');
-    $req->content($json_payload);
-    $req->authorization_basic($KEA_API_USER, $KEA_API_PASS);
-    
-    my $res = $ua->request($req);
-    
-    unless ($res->is_success) {
-        die "HTTP request failed: " . $res->status_line;
-    }
-sub kea_list_subnets {
-    my $payload = {
-        command => 'subnet4-list',
-        service => ['dhcp4']
-    };
-    
-    # subnet4-list is read-only, so it will be sent even in test mode
-    my $response = send_to_kea($payload);
-    
-    # Handle case where no subnets exist
-    return $response->[0]->{arguments}->{subnets} || [];
-}       print "[TEST MODE] Would list subnets - returning empty list\n";
-        return [];
-    }
-    
-    my $response = send_to_kea($payload);
-    
-    # Handle case where no subnets exist
-    return $response->[0]->{arguments}->{subnets} || [];
-}   my $response = send_to_kea($payload);
-    return $response->[0]->{arguments} || [];
 }
 
 sub kea_list_subnets {
@@ -396,6 +355,7 @@ sub kea_list_subnets {
         service => ['dhcp4']
     };
     
+    # subnet4-list is read-only, so it will be sent even in test mode
     my $response = send_to_kea($payload);
     
     # Handle case where no subnets exist
